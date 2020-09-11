@@ -15,8 +15,14 @@ class CropThumbnailsSettingsScreen {
 	}
 
 	public function optionsPageStyle() {
-		check_admin_referer();
-		if(!empty($_REQUEST['page']) && $_REQUEST['page']==='page-cpt') {
+
+		if (!isset($_REQUEST['page'])) {
+			return;
+		}
+
+		$page = sanitize_text_field( wp_unslash( $_REQUEST['page'] ) );
+
+		if($page==='page-cpt') {
 			wp_enqueue_style('crop-thumbnails-options-style', plugins_url('app/app.css',dirname(__FILE__)), array(), CROP_THUMBNAILS_VERSION);
 			wp_enqueue_script('vue', plugins_url('app/vendor/vue.min.js', dirname(__FILE__)), array(), CROP_THUMBNAILS_VERSION);
 			wp_enqueue_script('crop-thumbnails-options-js', plugins_url('app/app.js',dirname(__FILE__) ), array('vue'), CROP_THUMBNAILS_VERSION);
