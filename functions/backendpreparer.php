@@ -179,7 +179,7 @@ jQuery(document).ready(function($) {
 			return function( props ) {
 				setTimeout(function() {
 					var baseElem = $('.edit-post-sidebar');
-					var cropButton = $('<button class="button cropThumbnailsLink" style="margin-top:1em" data-cropthumbnail=\'{"image_id":'+ parseInt(props.featuredImageId) +',"viewmode":"single","posttype":"<?php echo esc_attr( get_post_type() ); ?>"}\' title="<?php esc_attr_e('Crop Featured Image','crop-thumbnails') ?>"><span class="wp-media-buttons-icon"></span> <?php esc_html_e('Crop Featured Image','crop-thumbnails'); ?></button>');
+					var cropButton = $('<button class="button cropThumbnailsLink" style="margin-top:1em" data-cropthumbnail=\'{"image_id":'+ parseInt(props.featuredImageId) +',"viewmode":"single","posttype":"<?php echo esc_js( get_post_type() ); ?>"}\' title="<?php esc_attr_e('Crop Featured Image','crop-thumbnails') ?>"><span class="wp-media-buttons-icon"></span> <?php esc_html_e('Crop Featured Image','crop-thumbnails'); ?></button>');
 					if(typeof props.media !== 'undefined') {
 						var panel = baseElem.find('.editor-post-featured-image');
 						panel.find('.cropThumbnailsLink').remove();
