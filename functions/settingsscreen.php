@@ -254,7 +254,7 @@ class CropThumbnailsSettingsScreen {
 						type: 'POST',
 						data: {
 							action: 'ctppluginquicktest',
-							security: '<?php echo esc_attr( wp_create_nonce( "cpt_quicktest-ajax-nonce" ) );//only for quicktest ?>'
+							security: '<?php echo esc_js( wp_create_nonce( "cpt_quicktest-ajax-nonce" ) );//only for quicktest ?>'
 						},
 						success: function(responseData){
 							var output = '<div id="cpt_quicktest">'+responseData+'</div>';
