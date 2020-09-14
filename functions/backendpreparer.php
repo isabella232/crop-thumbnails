@@ -4,9 +4,9 @@
  * Adds the Crop-Thumbnail-Editor to the Backend.
  */
 class CropPostThumbnailsBackendPreparer {
-	
+
 	protected $allowedMime = array('image/jpeg','image/png');
-	
+
 	public function __construct() {
 		if ( is_admin() ) {
 			//add style and javascript
@@ -20,7 +20,7 @@ class CropPostThumbnailsBackendPreparer {
 	/**
 	 * Check if the crop-thumbnail-dialog should be available on the following pages. The default pages are
 	 * page and post editing pages, as well as the media-library.
-	 * 
+	 *
 	 * How to enhance the result.
 	 * <code>
 	 * add_filter('crop_thumbnails_activat_on_adminpages', function($oldValue) {
@@ -39,7 +39,7 @@ class CropPostThumbnailsBackendPreparer {
 		$result = apply_filters('crop_thumbnails_activat_on_adminpages',$result);
 		return $result;
 	}
-	
+
 	/**
 	 * For adding the styles in the backend
 	 */
@@ -50,7 +50,7 @@ class CropPostThumbnailsBackendPreparer {
 			wp_enqueue_style('crop-thumbnails-options-style', plugins_url('app/app.css', dirname(__FILE__)), array('jcrop'), CROP_THUMBNAILS_VERSION);
 		}
 	}
-	
+
 	/**
 	 * For adding the "crop-thumbnail"-link on posts, pages and the mediathek
 	 */
@@ -63,8 +63,8 @@ class CropPostThumbnailsBackendPreparer {
 			add_action('admin_footer',array($this,'addLinksToAdmin'));
 		}
 	}
-	
-	
+
+
 	/**
 	 * Add an field to the attachment edit dialog
 	 * @see http://code.tutsplus.com/tutorials/creating-custom-fields-for-attachments-in-wordpress--net-13076
@@ -101,15 +101,15 @@ class CropPostThumbnailsBackendPreparer {
 		}
 		return $showFeaturedImageCropButton;
 	}
-	
-	
+
+
 	/**
 	 * adds the links into post-types and the media-library
 	 */
 	function addLinksToAdmin() {
 
 
-		
+
 ?>
 <script type="text/javascript">
 jQuery(document).ready(function($) {
@@ -118,7 +118,7 @@ jQuery(document).ready(function($) {
 	 * Global accessable id of the current post (will be null if no post-element is present)
 	 */
 	CROP_THUMBNAILS_CURRENT_POST_ID = null;
-	
+
 	/**
 	 * Adds a button to the featured image metabox (Wordpress < 5).
 	 * The button will be visible only if a featured image is set.
@@ -129,19 +129,19 @@ jQuery(document).ready(function($) {
 		 */
 		var baseElem = $('#postimagediv');
 		if(!baseElem.length) { return; }//this is not WordPress < 5
-		
+
 		var featuredImageLinkButton = '';
 		featuredImageLinkButton+= '<p class="cropFeaturedImageWrap hidden">';
-		featuredImageLinkButton+= '<a class="button cropThumbnailsLink" href="#" data-cropthumbnail=\'{"image_id":'+ parseInt(wp.media.featuredImage.get()) +',"viewmode":"single","posttype":"<?php echo get_post_type(); ?>"}\' title="<?php esc_attr_e('Crop Featured Image','crop-thumbnails') ?>">';
+		featuredImageLinkButton+= '<a class="button cropThumbnailsLink" href="#" data-cropthumbnail=\'{"image_id":'+ parseInt(wp.media.featuredImage.get()) +',"viewmode":"single","posttype":"<?php echo esc_js( get_post_type() ); ?>"}\' title="<?php esc_attr_e('Crop Featured Image','crop-thumbnails') ?>">';
 		featuredImageLinkButton+= '<span class="wp-media-buttons-icon"></span> <?php esc_html_e('Crop Featured Image','crop-thumbnails'); ?>';
 		featuredImageLinkButton+= '</a>';
 		featuredImageLinkButton+= '</p>';
 		baseElem.find('.inside').after( $(featuredImageLinkButton) );
-		
-		
+
+
 		function updateCropFeaturedImageButton(currentId) {
 			var wrap = baseElem.find('.cropFeaturedImageWrap');
-			
+
 			if(currentId===-1) {
 				wrap.addClass('hidden');
 			} else {
@@ -152,34 +152,34 @@ jQuery(document).ready(function($) {
 			data.image_id = currentId;
 			link.data('cropthumbnail',data);
 		}
-		
+
 		wp.media.featuredImage.frame().on( 'select', function(){
 			updateCropFeaturedImageButton( parseInt(wp.media.featuredImage.get()) );
 		});
-		
+
 		baseElem.on('click', '#remove-post-thumbnail', function(){
 			updateCropFeaturedImageButton(-1);
 		});
-		
+
 		updateCropFeaturedImageButton( parseInt(wp.media.featuredImage.get()) );
 	}
 
 	/**
 	 * Adds a button to the featured image panel (Wordpress >= 5)
-	 * 
+	 *
 	 * I know this way to add the button is quite dirty - will refactoring it when i learned the api-way to do it.
 	 */
 	function handleFeaturedImagePanel() {
 		// @see https://github.com/WordPress/gutenberg/tree/master/packages/editor/src/components/post-featured-image
-		
+
 		if(typeof wp.element === 'undefined') { return };//this is not WordPress 5.x
 
 		var el = wp.element.createElement;
-		function wrapPostFeaturedImage( OriginalComponent ) { 
+		function wrapPostFeaturedImage( OriginalComponent ) {
 			return function( props ) {
 				setTimeout(function() {
 					var baseElem = $('.edit-post-sidebar');
-					var cropButton = $('<button class="button cropThumbnailsLink" style="margin-top:1em" data-cropthumbnail=\'{"image_id":'+ parseInt(props.featuredImageId) +',"viewmode":"single","posttype":"<?php echo get_post_type(); ?>"}\' title="<?php esc_attr_e('Crop Featured Image','crop-thumbnails') ?>"><span class="wp-media-buttons-icon"></span> <?php esc_html_e('Crop Featured Image','crop-thumbnails'); ?></button>');
+					var cropButton = $('<button class="button cropThumbnailsLink" style="margin-top:1em" data-cropthumbnail=\'{"image_id":'+ parseInt(props.featuredImageId) +',"viewmode":"single","posttype":"<?php echo esc_js( get_post_type() ); ?>"}\' title="<?php esc_attr_e('Crop Featured Image','crop-thumbnails') ?>"><span class="wp-media-buttons-icon"></span> <?php esc_html_e('Crop Featured Image','crop-thumbnails'); ?></button>');
 					if(typeof props.media !== 'undefined') {
 						var panel = baseElem.find('.editor-post-featured-image');
 						panel.find('.cropThumbnailsLink').remove();
@@ -188,7 +188,7 @@ jQuery(document).ready(function($) {
 						}
 					}
 				}, 50);
-				
+
 				return (
 					el(
 						wp.element.Fragment,
@@ -200,17 +200,17 @@ jQuery(document).ready(function($) {
 						//TODO add in a better way here
 					)
 				);
-			} 
+			}
 		}
 		if(typeof wp.hooks !== 'undefined' && typeof wp.hooks.addFilter !== 'undefined') {
-			wp.hooks.addFilter( 
-				'editor.PostFeaturedImage', 
-				'crop-thumbnails/wrap-post-featured-image', 
+			wp.hooks.addFilter(
+				'editor.PostFeaturedImage',
+				'crop-thumbnails/wrap-post-featured-image',
 				wrapPostFeaturedImage
 			);
-		}	
+		}
 	}
-	
+
 	<?php if(self::showCropButtonOnThisAdminPage()) : ?>
 	/** add link on posts and pages **/
 	if ($('body.post-php, body.page-php, body.page-new.php, body.post-new-php').length > 0) {
@@ -222,7 +222,7 @@ jQuery(document).ready(function($) {
 
 			handleFeaturedImageBox();
 			handleFeaturedImagePanel();
-			
+
 			$('body').on('cropThumbnailModalClosed',function() {
 				//lets cache-break the crop-thumbnail-preview-box
 				CROP_THUMBNAILS_DO_CACHE_BREAK($('#postimagediv img'));

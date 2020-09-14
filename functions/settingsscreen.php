@@ -8,14 +8,21 @@ class CropThumbnailsSettingsScreen {
 		if(is_admin()) {
 			add_filter('plugin_action_links', array($this,'addSettingsLinkToPluginPage'), 10, 2);
 			add_action('admin_head', array($this,'optionsPageStyle'));
-			
+
 			//needed for quick-test
 			add_action( 'wp_ajax_ctppluginquicktest', array(&$this, 'ajax_callback_admin_quicktest') );
 		}
 	}
 
 	public function optionsPageStyle() {
-		if(!empty($_REQUEST['page']) && $_REQUEST['page']==='page-cpt') {
+
+		if (!isset($_REQUEST['page'])) {
+			return;
+		}
+
+		$page = sanitize_text_field( wp_unslash( $_REQUEST['page'] ) );
+
+		if($page==='page-cpt') {
 			wp_enqueue_style('crop-thumbnails-options-style', plugins_url('app/app.css',dirname(__FILE__)), array(), CROP_THUMBNAILS_VERSION);
 			wp_enqueue_script('vue', plugins_url('app/vendor/vue.min.js', dirname(__FILE__)), array(), CROP_THUMBNAILS_VERSION);
 			wp_enqueue_script('crop-thumbnails-options-js', plugins_url('app/app.js',dirname(__FILE__) ), array('vue'), CROP_THUMBNAILS_VERSION);
@@ -41,15 +48,15 @@ class CropThumbnailsSettingsScreen {
 		<h2>Crop-Thumbnails <?php esc_attr_e('Settings','crop-thumbnails'); ?></h2>
 			<form action="options.php" method="post">
 				<?php settings_fields( self::$uniqeSettingsId ); ?>
-				
+
 				<?php do_settings_sections('page1'); ?>
-				
-				<div class="<?php echo self::$cssPrefix ?>submit">
+
+				<div class="<?php echo esc_attr( self::$cssPrefix ); ?>submit">
 					<input name="Submit" type="submit" value="<?php esc_attr_e('Save Changes','crop-thumbnails'); ?>" class="button-primary" />
 				</div>
 			</form>
 
-			<div class="<?php echo self::$cssPrefix; ?>paypal">
+			<div class="<?php echo esc_attr( self::$cssPrefix ); ?>paypal">
 				<h3><?php esc_html_e('Support the plugin author','crop-thumbnails') ?></h3>
 				<p><?php esc_html_e('You can support the plugin author (and let him know you love this plugin) by donating via Paypal. Thanks a lot!','crop-thumbnails'); ?></p>
 				<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
@@ -82,7 +89,7 @@ class CropThumbnailsSettingsScreen {
 
 		$_sectionID = 'quick_test';
 		add_settings_section($_sectionID, esc_html__('Plugin Test','crop-thumbnails'), array($this,'sectionDescriptionTest'), 'page1');
-		
+
 		$_sectionID = 'developer';
 		add_settings_section($_sectionID, esc_html__('Developer Settings','crop-thumbnails'), array($this,'emptySectionDescription'), 'page1');
 		$_tmpID = 'debug_js';
@@ -101,19 +108,19 @@ class CropThumbnailsSettingsScreen {
 				'hide_on_post_type' => esc_js(__('Hide Crop-Thumbnails button below the featured image?','crop-thumbnails'))
 			)
 		);
-		
+
 		?>
-		<div class="<?php echo self::$cssPrefix ?>submit">
+		<div class="<?php echo esc_attr( self::$cssPrefix ) ?>submit">
 			<input name="Submit" type="submit" value="<?php esc_attr_e('Save Changes','crop-thumbnails'); ?>" class="button-primary" />
 		</div>
 
-		<div id="<?php echo self::$cssPrefix ?>settingsscreen">
+		<div id="<?php echo esc_attr( self::$cssPrefix ) ?>settingsscreen">
 			<cpt-settingsscreen settings="<?php echo esc_attr(json_encode($settings)) ?>"></cpt-settingsscreen>
 		</div>
 
-		<div class="<?php echo self::$cssPrefix ?>submit">
+		<div class="<?php echo esc_attr( self::$cssPrefix ) ?>submit">
 			<input name="Submit" type="submit" value="<?php esc_attr_e('Save Changes','crop-thumbnails'); ?>" class="button-primary" />
-		</div>	
+		</div>
 		<?php
 	}
 
@@ -129,14 +136,20 @@ class CropThumbnailsSettingsScreen {
 	public function emptySectionDescription() {/*empty*/ }
 
 
-	
+
 	public function callback_user_permission_only_on_edit_files() {
 		$options = $GLOBALS['CROP_THUMBNAILS_HELPER']->getOptions();
 		$_id = 'user_permission_only_on_edit_files';
 		if(empty($options[$_id])) { $options[$_id] = ''; }
-		echo '<input name="'.$GLOBALS['CROP_THUMBNAILS_HELPER']->getOptionsKey().'['.$_id.']" id="'.self::$cssPrefix.$_id.'" type="checkbox" value="1" ' . checked( 1, $options[$_id], false) . ' />';
 		?>
-		<div class="<?php echo self::$cssPrefix ?>submit">
+		<input
+			name="<?php echo esc_attr( $GLOBALS['CROP_THUMBNAILS_HELPER']->getOptionsKey() . "[ {$_id} ]" );?>"
+			id="<?php echo esc_attr( self::$cssPrefix.$_id ) ?>"
+			type="checkbox"
+			value="1"
+			<?php checked( 1, $options[$_id] ) ?>
+		/>
+		<div class="<?php echo esc_attr( self::$cssPrefix ) ?>submit">
 			<input name="Submit" type="submit" value="<?php esc_attr_e('Save Changes','crop-thumbnails'); ?>" class="button-primary" />
 		</div>
 		<?php
@@ -146,14 +159,30 @@ class CropThumbnailsSettingsScreen {
 		$options = $GLOBALS['CROP_THUMBNAILS_HELPER']->getOptions();
 		$_id = 'debug_js';
 		if(empty($options[$_id])) { $options[$_id] = ''; }
-		echo '<input name="'.$GLOBALS['CROP_THUMBNAILS_HELPER']->getOptionsKey().'['.$_id.']" id="'.self::$cssPrefix.$_id.'" type="checkbox" value="1" ' . checked( 1, $options[$_id], false) . ' />';
+		?>
+		<input
+			name="<?php echo esc_attr( $GLOBALS['CROP_THUMBNAILS_HELPER']->getOptionsKey() . "[ {$_id} ]" ); ?>"
+			id="<?php echo esc_attr( self::$cssPrefix.$_id ) ?>"
+			type="checkbox"
+			value="1"
+			<?php checked( 1, $options[$_id] ) ?>
+		/>
+		<?php
 	}
 
 	public function callback_debug_data() {
 		$options = $GLOBALS['CROP_THUMBNAILS_HELPER']->getOptions();
 		$_id = 'debug_data';
 		if(empty($options[$_id])) { $options[$_id] = ''; }
-		echo '<input name="'.$GLOBALS['CROP_THUMBNAILS_HELPER']->getOptionsKey().'['.$_id.']" id="'.self::$cssPrefix.$_id.'" type="checkbox" value="1" ' . checked( 1, $options[$_id], false ) . ' />';
+		?>
+		<input
+			name="<?php echo esc_attr( $GLOBALS['CROP_THUMBNAILS_HELPER']->getOptionsKey() . "[ {$_id} ]" ); ?>"
+			id="<?php echo esc_attr( self::$cssPrefix.$_id ) ?>"
+			type="checkbox"
+			value="1"
+			<?php checked( 1, $options[$_id] ) ?>
+		/>
+		<?php
 	}
 
 	public function validateSettings($input) {
@@ -203,31 +232,31 @@ class CropThumbnailsSettingsScreen {
 
 		return $storeInDb;
 	}
-	
+
 	public function sectionDescriptionTest() {?>
 		<button type="button" class="button-secondary cpt_quicktest">Do plugin quick-test.</button>
-		
+
 		<script>
 		jQuery(document).ready(function($) {
 			var currentlyProcessing = false;
-			
-			
+
+
 			$('button.cpt_quicktest').click(function(e) {
 				e.preventDefault();
-				
+
 				if(!currentlyProcessing) {
 					currentlyProcessing = true;
 					var button = $(this);
 					$('#cpt_quicktest').remove();
-					
+
 					$.ajax({
 						url: ajaxurl,
 						type: 'POST',
 						data: {
 							action: 'ctppluginquicktest',
-							security: '<?php echo wp_create_nonce( "cpt_quicktest-ajax-nonce" );//only for quicktest ?>'
+							security: '<?php echo esc_js( wp_create_nonce( "cpt_quicktest-ajax-nonce" ) );//only for quicktest ?>'
 						},
-						success: function(responseData){ 
+						success: function(responseData){
 							var output = '<div id="cpt_quicktest">'+responseData+'</div>';
 							button.after(output);
 							currentlyProcessing = false;
@@ -250,12 +279,12 @@ class CropThumbnailsSettingsScreen {
 		//security
 		if(!current_user_can('manage_options')) die('forbidden');
 		check_ajax_referer('cpt_quicktest-ajax-nonce','security');//only for quicktest
-		
+
 		$report = array();
 		$doDeleteAttachement = false;
 		$doDeleteTempFile = false;
 		$attachmentId = -1;
-		
+
 		$sourceFile = dirname( __FILE__ ).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'images'.DIRECTORY_SEPARATOR.'test_image.jpg';
 		$tempFile = $GLOBALS['CROP_THUMBNAILS_HELPER']->getUploadDir().DIRECTORY_SEPARATOR.'testfile.jpg';
 		try {
@@ -263,7 +292,7 @@ class CropThumbnailsSettingsScreen {
 			$report[] = '<strong class="info">info</strong> PHP '.phpversion();
 			$report[] = '<strong class="info">info</strong> PHP memory limit '.ini_get('memory_limit');
 			$report[] = '<strong class="info">info</strong> '._wp_image_editor_choose(array('mime_type' => 'image/jpeg')).' <small>(choosed Wordpress imageeditor class for jpg)</small>';
-			
+
 			//check if tmp-folder can be generated
 			if(is_dir($GLOBALS['CROP_THUMBNAILS_HELPER']->getUploadDir())) {
 				$report[] = '<strong class="success">success</strong> Temporary directory exists';
@@ -274,16 +303,17 @@ class CropThumbnailsSettingsScreen {
 					$report[] = '<strong class="success">success</strong> Temporary directory could be created';
 				}
 			}
-			
+
 			//creating the testfile in temporary directory
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- throw error if copy fails.
 			if(!@copy($sourceFile,$tempFile)) {
 				throw new \Exception('<strong class="fails">fail</strong> Copy testfile to temporary directory | is the tmp-directory writable with PHP?');
 			} else {
 				$report[] = '<strong class="success">success</strong> Copy testfile to temporary directory';
 				$doDeleteTempFile = true;
 			}
-			
-			
+
+
 			//try to upload the file
 			$_FILES['cpt_quicktest'] = array(
 				'name' => 'test_image.jpg',
@@ -300,8 +330,8 @@ class CropThumbnailsSettingsScreen {
 				$report[] = '<strong class="success">success</strong> Testfile was successfully added to media-library. (ID:'.$attachmentId.')';
 				$doDeleteAttachement = true;
 			}
-			
-			
+
+
 			//try to crop with the same function as the plugin does
 			$cropResult = wp_crop_image(    // * @return string|WP_Error|false New filepath on success, WP_Error or false on failure.
 				$attachmentId,	            // * @param string|int $src The source file or Attachment ID.
@@ -321,8 +351,8 @@ class CropThumbnailsSettingsScreen {
 				$doDeleteTempFile = true;
 				$doDeleteAttachement = true;
 			}
-			
-			
+
+
 			//check if the dimensions are correct
 			$fileDimensions = getimagesize($tempFile);
 			if(!empty($fileDimensions[0]) && !empty($fileDimensions[1]) && !empty($fileDimensions['mime'])) {
@@ -335,22 +365,22 @@ class CropThumbnailsSettingsScreen {
 					$_checkDimensionsOk = false;
 					$report[] = '<strong class="fails">fail</strong> Cropped image dimensions mime-type is wrong.';
 				}
-				
+
 				if($_checkDimensionsOk) {
 					$report[] = '<strong class="success">success</strong> Cropped image dimensions are correct.';
 				}
 			} else {
 				$report[] = '<strong class="fails">fail</strong> Problem with getting the image dimensions of the cropped file.';
 			}
-			
-			
+
+
 		} catch(\Exception $e) {
 			$report[] = $e->getMessage();
 		}
-		
-		
+
+
 		//DO CLEANUP
-		
+
 		//delete attachement file
 		if($doDeleteAttachement && $attachmentId!==-1) {
 			if ( false === wp_delete_attachment( $attachmentId ) ) {
@@ -359,8 +389,8 @@ class CropThumbnailsSettingsScreen {
 				$report[] = '<strong class="success">success</strong> Test-attachement successfull deleted (ID:'.$attachmentId.')';
 			}
 		}
-		
-		
+
+
 		//deleting testfile form temporary directory
 		if($doDeleteTempFile) {
 			if(!@unlink($tempFile)) {
@@ -369,9 +399,10 @@ class CropThumbnailsSettingsScreen {
 				$report[] = '<strong class="success">success</strong> Remove testfile from temporary directory';
 			}
 		}
-		
+
 		$report[] = '<strong class="info">info</strong> Tests complete';
-		echo join($report,"<br />");
+		// phpcs:ignore HM.Security.EscapeOutput.OutputNotEscaped -- each item was escaped.
+		echo join("<br />", $report);
 		exit();
 	}
 }
