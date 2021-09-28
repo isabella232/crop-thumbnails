@@ -1,0 +1,15 @@
+{
+    "name": "humanmade/crop-thumbnails",
+    "description": "A Wordpress-Plugin for editing cropped image-sizes.",
+    "type": "wordpress-plugin",
+    "license": "GPL-3.0-only",
+    "authors": [
+        {
+            "name": "Human Made",
+            "email": "hello@hmn.md"
+        }
+    ],
+    "require": {
+      "composer/installers": "^1.0"
+    }
+}
